@@ -72,7 +72,7 @@ function _get_toppart(ipeps::iPEPS, ipepsbar::iPEPS, envs::iPEPSenv, xx::Int, yy
     gate1 = swap_gate(space(M)[1], space(Mbar)[2]; Eltype=eltype(M))
     gate2 = swap_gate(space(M)[5], space(Mbar)[4]; Eltype=eltype(M))
 
-    @tensoropt toppart[lχ, rχ; lupD, ldnD, rupD, rdnD, bupD, bdnD] :=
+    @tensor opt = true toppart[lχ, rχ; lupD, ldnD, rupD, rdnD, bupD, bdnD] :=
         M[lupDMin, bupDin, p, rupD, bupDMin] * Mbar[ldnD, bdnDMin, p, ldnDMin, bdnD] *
         gate2[bupD, rdnD, bupDMin, ldnDMin] * gate1[lupD, bdnDin, lupDMin, bdnDMin] *
         envs[xx, yy].transfer.t[lχ, rχ, bupDin, bdnDin]
@@ -83,12 +83,12 @@ end
 
 # 计算左侧环境
 function _get_leftpart(ipeps::iPEPS, ipepsbar::iPEPS, envs::iPEPSenv, xx::Int, yy::Int)
-    M = ipeps[x, y]::TensorMap
-    Mbar = ipepsbar[x, y]::TensorMap
+    M = ipeps[xx, yy]::TensorMap
+    Mbar = ipepsbar[xx, yy]::TensorMap
     gate1 = swap_gate(space(M)[1], space(Mbar)[2]; Eltype=eltype(M))
     gate2 = swap_gate(space(M)[5], space(Mbar)[4]; Eltype=eltype(M))
 
-    @tensoropt leftpart[tχ, bχ; tupD, tdnD, bupD, bdnD, rupD, rdnD] :=
+    @tensor opt = true leftpart[tχ, bχ; tupD, tdnD, bupD, bdnD, rupD, rdnD] :=
         M[rupDMin, tupD, p, rupD, tupDMin] * Mbar[rdnDin, tdnDMin, p, rdnDMin, bdnD] *
         gate2[bupD, rdnD, tupDMin, rdnDMin] * gate1[rupDin, tdnD, rupDMin, tdnDMin] *
         envs[xx, yy].transfer.l[tχ, bχ, rupDin, rdnDin]
@@ -258,7 +258,8 @@ function Cal_Obs_h(ipeps::iPEPS, ipepsbar::iPEPS, envs::iPEPSenv, pre_compute_en
             update_midpart_h!(midpart, pre_compute_env, x1, y1, deltaY)
             @tensor opt = true ψ□ψ[pup1, pup2; pdn1, pdn2] :=
                 toppart[pup1, Dupin, l12l2; pdn1, Ddnin, r12r2] * midpart[r12r2, r12r2p, l12l2, l12l2p, Dupin, Ddnin, Dupin2, Ddnin2] *
-                bottompart[pup2, Dupin2, l12l2p; pdn2, Ddnin2, r12r2pl2p; pdn2, Ddnin, r12r2p]
+                #bottompart[pup2, Dupin2, l12l2p; pdn2, Ddnin2, r12r2pl2p; pdn2, Ddnin, r12r2p]
+                bottompart[pup2, Dupin2, l12l2p; pdn2, Ddnin2, r12r2p]
         end
         @tensor nrm = ψ□ψ[p1, p2, p1, p2]
 
@@ -282,7 +283,7 @@ function Cal_Obs_h(ipeps::iPEPS, ipepsbar::iPEPS, envs::iPEPSenv, pre_compute_en
 end
 
 # 迭代调用此函数，利用 pre_compute_env[x, y, 1] 更新中间部分
-function update_midpart_h!(midpart::Union{nothing,AbstractTensorMap}, pre_compute_env::pre_compute, x1::Int, y1::Int, deltaY::Int)
+function update_midpart_h!(midpart::Union{Nothing,AbstractTensorMap}, pre_compute_env::pre_compute, x1::Int, y1::Int, deltaY::Int)
     if midpart === nothing
         midpart = pre_compute_env.h_env[x1, y1, 1]
     else
@@ -354,7 +355,7 @@ function Cal_Obs_v(ipeps::iPEPS, ipepsbar::iPEPS, envs::iPEPSenv, pre_compute_en
                 error("rank of OpL and OpR must be 2 or 3")
             end
             @tensor tmp = ψ□ψ[pup1, pup2; pdn1, pdn2] * OpL[pdn1, pup1, a] * OpR[a, pdn2, pup2]
-            Obs_v2site[gate] = vcat(Obs_v2site[gate], [x1, y1, x1, y1 + deltaY, tmp / nrm])
+            Obs_v2site[gate] = vcat(Obs_v2site[gate], [x1, y1, x1 + deltaX, y1, tmp / nrm])
         end
 
     end
@@ -362,7 +363,7 @@ function Cal_Obs_v(ipeps::iPEPS, ipepsbar::iPEPS, envs::iPEPSenv, pre_compute_en
 end
 
 # 迭代调用此函数，利用 pre_compute_env[x, y, 1] 更新中间部分
-function update_midpart_v!(midpart::Union{nothing,AbstractTensorMap}, pre_compute_env::pre_compute, x1::Int, y1::Int, deltaX::Int)
+function update_midpart_v!(midpart::Union{Nothing,AbstractTensorMap}, pre_compute_env::pre_compute, x1::Int, y1::Int, deltaX::Int)
     if midpart === nothing
         midpart = pre_compute_env.v_env[x1, y1, 1]
     else
