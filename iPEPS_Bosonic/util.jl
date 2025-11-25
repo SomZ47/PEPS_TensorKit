@@ -48,16 +48,15 @@ function SqrtInv(t::AbstractTensorMap; truncErr=1e-8)
           rslt = TensorMap(diagm(tp), domain(t) ← codomain(t))
           return rslt / mean(tp)
      else
-          data = empty(t.data)
+          tp = similar(t)
           for (c, b) in blocks(t)
                bp = diag(b)
                for (ind, val) in enumerate(bp)
                     val < truncErr ? bp[ind] = zero(TP) : bp[ind] = one(TP) / sqrt(val)
                end
-               data[c] = diagm(bp)
+               block(tp, c) .= diagm(bp)
           end
-          rslt = TensorMap(data, domain(t) ← codomain(t))
-          return rslt / mean(convert(Array, rslt))
+          return tp / mean(convert(Array, tp))
      end
 end
 
@@ -75,12 +74,12 @@ function sqrt4diag(t::AbstractTensorMap)
           tp = diag(block(t, Trivial()))
           return TensorMap(diagm(sqrt.(tp)), domain(t) ← codomain(t))
      else
-          data = empty(t.data)
+          tp = similar(t)
           for (c, b) in blocks(t)
                bp = diag(b)
-               data[c] = diagm(sqrt.(bp))
+               block(tp, c) .= diagm(sqrt.(bp))
           end
-          return TensorMap(data, domain(t) ← codomain(t))
+          return tp
      end
 end
 
