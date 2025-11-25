@@ -31,6 +31,7 @@ function main()
     para[:Etol] = 0.00001  # simple update 能量差小于 para[:Etol]*τ² 这个数就可以继续增大步长
     para[:verbose] = 1
     para[:NNNmethod] = :bond
+    para[:TrotterOrder] = 2 # 用几阶Trotter分解,设为1或2
     para[:pspace] = Rep[U₁](-1 // 2 => 1, 1 // 2 => 1)
 
     pspace = Rep[U₁](-1 // 2 => 1, 1 // 2 => 1)

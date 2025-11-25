@@ -51,8 +51,9 @@ function main()
     Lx = 2
     Ly = 2
     # Dir on Window 
-    dir = "D:/iPEPS_projects/LNO_2orb/data/LNO_Lx$(Lx)Ly$(Ly)_SU_V$(para[:V])JH$(para[:JH])Jperp$(para[:Jperp])_D$(para[:Dk])chi$(para[:χ])CTMit$(para[:CTMit])/"
+    #=dir = "D:/iPEPS_projects/LNO_2orb/data/LNO_Lx$(Lx)Ly$(Ly)_SU_V$(para[:V])JH$(para[:JH])Jperp$(para[:Jperp])_D$(para[:Dk])chi$(para[:χ])CTMit$(para[:CTMit])/"
     isdir(dir) ? nothing : mkdir(dir)
+    =#
     # simple update
     ipepsγλ = iPEPSΓΛ(pspace, aspacelr, aspacetb, Lx, Ly; dtype=Float64)
     simple_update_aniso!(ipepsγλ, tJ2orb_hij, para)
@@ -106,6 +107,7 @@ function main()
     Eg = Eg / (Lx * Ly) + fillingx * para[:εx] + fillingz * para[:εz]
     @show Eg
 
+    #=
     # =================== save Obs to file ================================
     # Obsname = joinpath("/home/tcmp2/JuliaProjects/", "tJZ2SU2_Lx$(Lx)Ly$(Ly)_SU_t$(para[:t])tp$(para[:tp])J$(para[:J])Jp$(para[:Jp])V$(para[:V])mu$(para[:μ])_ipepsEnv_D$(para[:Dk])chi$(para[:χ])_Obs.h5")
     Obsname = joinpath(dir, "Obs.h5")
@@ -124,6 +126,7 @@ function main()
     finally
         close(f)
     end
+    =#
 
     return nothing
 end

@@ -1,5 +1,6 @@
 using MKL
 using TensorKit
+using FLoops
 # import TensorKit.×
 # using JLD2
 
@@ -15,6 +16,7 @@ function main()
     para = Dict{Symbol,Any}()
     para[:J] = 1.0
     para[:τlisSU] = [1.0, 0.5, 0.1, 0.05, 0.01, 0.001, 0.0001]
+    para[:minStep1τ] = 10  # 对每个虚时步长 τ , 最少投影这么多步
     para[:maxStep1τ] = 50  # 对每个虚时步长 τ , 最多投影这么多步
     para[:Dk] = 6  # Dkept in the simple udate
     para[:χ] = 100  # env bond dimension
@@ -22,6 +24,7 @@ function main()
     para[:Etol] = 0.0001  # simple update 能量差小于 para[:Etol]*τ² 这个数就可以继续增大步长
     para[:verbose] = 1
     para[:NNNmethod] = :bond
+    para[:TrotterOrder] = 2 # 用几阶Trotter分解,设为1或2
     para[:pspace] = Rep[U₁](-1 // 2 => 1, 1 // 2 => 1)
 
     pspace = Rep[U₁](-1 // 2 => 1, 1 // 2 => 1)
