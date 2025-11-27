@@ -49,7 +49,8 @@ Generate trotter gates for simple update.\n
 return a vector. [gateNN, gateNNN], etc. \n 
 Notice: For Next-Nearest-Neighbor interaction, return √gateNNN and employ two paths in the following steps.
 """
-function get_gates(hams::Tuple, τ::Number; TrotterOrder=1)
+#function get_gates(hams::Tuple, τ::Number; TrotterOrder=1)
+function get_gates(hams::Vector, τ::Number; TrotterOrder=1)
     if length(hams) >= 3
         error("Only support up to next-nearest-neighbor interaction.")
     end
